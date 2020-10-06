@@ -1,0 +1,67 @@
+syntax="proto3";
+
+package openapi;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+// import "google/protobuf/field_mask.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+// Defines the import path that should be used to import the generated package,
+// and the package name.
+option go_package = "github.com/urunimi/grpc-open-api/proto;openapi";
+
+//These annotations are used when generating the OpenAPI file.
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    version: "1.0"
+  },
+  external_docs: {
+    url: "https://github.com/urunimi/grpc-open-api",
+    description: "gRPC Open API",
+  },
+  schemes: HTTP,
+};
+
+service ArticleService {
+  rpc AddArticle(AddArticleRequest) returns (Article) {
+    option (google.api.http) = {
+      post: "/api/v1/articles"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Add an article"
+      description: "Add an article to the server."
+      tags: "Articles"
+    };
+  }
+
+  rpc ListArticles(ListArticlesRequest) returns (stream Article) {
+    option (google.api.http) = {
+      // Route to this method from GET requests to /api/v1/articles
+      get: "/api/v1/articles"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List articles"
+      description: "List all articles on the server."
+      tags: "Articles"
+    };
+  }
+}
+
+message AddArticleRequest {
+    string title = 1;
+    string description = 2;
+    google.protobuf.Struct metadata = 3;
+}
+
+message ListArticlesRequest {}
+
+message Article {
+    // Id uniquely identifies an article. Output only.
+    string id = 1;
+    string title = 2;
+    string description = 3;
+    google.protobuf.Timestamp created_at = 4;
+}
